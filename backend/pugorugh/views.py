@@ -1,6 +1,7 @@
 from bisect import bisect
 
 from django.contrib.auth import get_user_model
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 
 from rest_framework import permissions
@@ -27,41 +28,64 @@ class RetrieveDog(generics.RetrieveUpdateAPIView):
         )
 
 
-class RetrieveUndecidedDog(generics.RetrieveUpdateAPIView):
+class RetrieveFilteredDog(generics.RetrieveUpdateAPIView):
     queryset = models.Dog.objects.all()
     serializer_class = serializers.DogSerializer
 
     def get_object(self):
         user = self.request.user
-        # Get ids of all dogs liked and disliked by the current user.
-        decided_dogs_ids = models.Dog.objects.filter(
-            userdog__user=user
-        ).values_list('id', flat=True)
-        print(decided_dogs_ids)
+        pk = int(self.kwargs.get('pk'))
+        dog_filter = self.kwargs.get('filter')
+        print(filter)
 
-        # Get a list of ordered ids of all dogs undecided by the current user.
-        undecided_dogs_ids = models.Dog.objects.exclude(
-            id__in=decided_dogs_ids
-        ).order_by('id').values_list('id', flat=True)
-        print(undecided_dogs_ids)
+        if dog_filter == 'undecided':
+            # Get ids of all dogs liked and disliked by the current user.
+            decided_dogs_ids = models.Dog.objects.filter(
+                userdog__user=user
+            ).values_list('id', flat=True)
+            print(decided_dogs_ids)
 
-        # If there are undecided dogs
-        if undecided_dogs_ids:
-            pk = int(self.kwargs.get('pk'))
+            # Get a list of ordered ids of all dogs undecided by the current
+            # user.
+            filtered_dogs_ids = models.Dog.objects.exclude(
+                id__in=decided_dogs_ids
+            ).order_by('id').values_list('id', flat=True)
+            print(filtered_dogs_ids)
 
-            # If pk is equal or greater than the highest undecided dog id
-            if pk >= undecided_dogs_ids[len(undecided_dogs_ids)-1]:
-                # Set dog_id to the lowest undecided dog id
-                dog_id = undecided_dogs_ids[0]
+        elif dog_filter == 'liked':
+            # Get ids of all dogs liked by the current user.
+            filtered_dogs_ids = models.Dog.objects.filter(
+                userdog__user=user,
+                userdog__status='l'
+            ).order_by('id').values_list('id', flat=True)
+            print(filtered_dogs_ids)
+
+        else:
+            # Get ids of all dogs disliked by the current user.
+            filtered_dogs_ids = models.Dog.objects.filter(
+                userdog__user=user,
+                userdog__status='d'
+            ).order_by('id').values_list('id', flat=True)
+            print(filtered_dogs_ids)
+
+        # If there are filtered dogs
+        if filtered_dogs_ids:
+
+            # If pk is equal or greater than the highest filtered dog id
+            if pk >= filtered_dogs_ids[len(filtered_dogs_ids) - 1]:
+                # Set dog_id to the lowest filtered dog id
+                dog_id = filtered_dogs_ids[0]
             else:
-                index = bisect(undecided_dogs_ids, pk)
-                dog_id = undecided_dogs_ids[index]
+                index = bisect(filtered_dogs_ids, pk)
+                dog_id = filtered_dogs_ids[index]
 
             print(dog_id)
+
             return get_object_or_404(
                 self.get_queryset(),
                 pk=dog_id,
             )
-        # If there are no undecided dogs
+
+        # If there are no filtered dogs
         else:
-            return models.Dog.objects.none()
+            raise Http404
