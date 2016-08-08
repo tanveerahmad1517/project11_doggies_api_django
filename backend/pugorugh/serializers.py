@@ -37,8 +37,9 @@ class UserPrefSerializer(serializers.ModelSerializer):
     class Meta:
         fields = (
             'user',
-            'dog',
-            'status',
+            'age',
+            'gender',
+            'size',
         )
         extra_kwargs = {'user': {'write_only': True}}
         model = models.UserPref

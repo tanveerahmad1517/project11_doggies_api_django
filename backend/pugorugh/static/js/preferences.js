@@ -39,7 +39,7 @@ var Preferences = React.createClass({
 
     $.ajax({
       url: "api/user/preferences/",
-      method: "PUT",
+      method: "PATCH",
       dataType: "json",
       headers: $.extend({ 'Content-type': 'application/json' }, TokenAuth.getAuthHeader()),
       data: json,

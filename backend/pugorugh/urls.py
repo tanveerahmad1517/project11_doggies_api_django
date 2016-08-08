@@ -24,6 +24,10 @@ urlpatterns = format_suffix_patterns([
         views.UpdateDogStatus.as_view(),
         name="update-dog",
         ),
+    url(r'^api/user/preferences/$',
+        views.RetrieveUpdateUserPreferences.as_view(),
+        name="update-user-preferences",
+        ),
     url(r'^favicon\.ico$',
         RedirectView.as_view(
             url='/static/icons/favicon.ico',

@@ -120,3 +120,16 @@ class UpdateDogStatus(APIView):
         serializer = serializers.DogSerializer(dog)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class RetrieveUpdateUserPreferences(generics.RetrieveUpdateAPIView):
+
+    queryset = models.UserPref.objects.all()
+    serializer_class = serializers.UserPrefSerializer
+
+    def get_object(self):
+        user = self.request.user
+        return get_object_or_404(
+            self.get_queryset(),
+            user=user,
+        )
