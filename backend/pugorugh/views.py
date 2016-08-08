@@ -4,8 +4,11 @@ from django.contrib.auth import get_user_model
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 
-from rest_framework import permissions
 from rest_framework import generics
+from rest_framework import permissions
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from . import models
 from . import serializers
@@ -28,14 +31,14 @@ class RetrieveDog(generics.RetrieveUpdateAPIView):
         )
 
 
-class RetrieveFilteredDog(generics.RetrieveUpdateAPIView):
+class RetrieveFilteredDog(generics.RetrieveAPIView):
     queryset = models.Dog.objects.all()
     serializer_class = serializers.DogSerializer
 
     def get_object(self):
         user = self.request.user
         pk = int(self.kwargs.get('pk'))
-        dog_filter = self.kwargs.get('filter')
+        dog_filter = self.kwargs.get('dog_filter')
         print(filter)
 
         if dog_filter == 'undecided':
@@ -89,3 +92,31 @@ class RetrieveFilteredDog(generics.RetrieveUpdateAPIView):
         # If there are no filtered dogs
         else:
             raise Http404
+
+
+class UpdateDogStatus(APIView):
+    def put(self, request, pk, dog_status):
+
+        user = request.user
+        pk = int(pk)
+
+        dog = get_object_or_404(models.Dog, pk=pk)
+
+        if dog_status == 'liked':
+            models.UserDog.objects.update_or_create(
+                user=user,
+                status='l',
+                dog=dog,
+            )
+        elif dog_status == 'disliked':
+            models.UserDog.objects.update_or_create(
+                user=user,
+                status='d',
+                dog=dog,
+            )
+        else:
+            models.UserDog.objects.filter(dog=dog, user=user).delete()
+
+        serializer = serializers.DogSerializer(dog)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)

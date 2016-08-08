@@ -10,14 +10,19 @@ from pugorugh import views
 # API endpoints
 urlpatterns = format_suffix_patterns([
     url(r'^api/user/login/$', obtain_auth_token, name='login-user'),
-    url(r'^api/user/$', views.UserRegisterView.as_view(), name='register-user'),
+    url(r'^api/user/$', views.UserRegisterView.as_view(),
+        name='register-user'),
     url(r'^api/dog/(?P<pk>\d+)/$',
         views.RetrieveDog.as_view(),
         name="dog-detail",
         ),
-    url(r'^api/dog/(?P<pk>-?\d+)/(?P<filter>liked|disliked|undecided)/next/$',
+    url(r'^api/dog/(?P<pk>-?\d+)/(?P<dog_filter>liked|disliked|undecided)/next/$',
         views.RetrieveFilteredDog.as_view(),
-        name="undecided-dog-detail",
+        name="filtered-dog-detail",
+        ),
+    url(r'^api/dog/(?P<pk>\d+)/(?P<dog_status>liked|disliked|undecided)/$',
+        views.UpdateDogStatus.as_view(),
+        name="update-dog",
         ),
     url(r'^favicon\.ico$',
         RedirectView.as_view(
