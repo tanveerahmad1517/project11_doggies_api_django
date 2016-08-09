@@ -153,7 +153,7 @@ var Dog = React.createClass({
     return React.createElement(
       "div",
       null,
-      React.createElement("img", { src: "static/images/dogs/" + this.state.details.image_filename }),
+      React.createElement("img", { src: this.state.details.image }),
       React.createElement(
         "p",
         { className: "dog-card" },

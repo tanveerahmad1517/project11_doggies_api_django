@@ -113,7 +113,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
         # 'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
+        # 'rest_framework.authentication.SessionAuthentication',
     )
 }
 
@@ -141,3 +141,6 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(os.path.dirname(__file__), '../pugorugh/static/'),
 )
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'static/images')
+MEDIA_URL = '/static/images/dogs/'

@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import generics
 from rest_framework import permissions
 from rest_framework import status
+from rest_framework import parsers
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -20,7 +21,13 @@ class UserRegisterView(generics.CreateAPIView):
     serializer_class = serializers.UserSerializer
 
 
-class RetrieveDog(generics.RetrieveUpdateAPIView):
+class CreateDog(generics.CreateAPIView):
+    # parser_classes = (parsers.MultiPartParser, parsers.FormParser, parsers.JSONParser,)
+    queryset = models.Dog.objects.all()
+    serializer_class = serializers.DogSerializer
+
+
+class RetrieveUpdateDog(generics.RetrieveUpdateAPIView):
     queryset = models.Dog.objects.all()
     serializer_class = serializers.DogSerializer
 

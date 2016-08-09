@@ -6,8 +6,9 @@ from django.db.models.signals import post_save
 class Dog(models.Model):
     """Dog model class."""
     name = models.CharField(max_length=100)
-    image_filename = models.CharField(max_length=255)
-    breed = models.CharField(max_length=100, default="Pure Mutt")
+    image = models.ImageField(upload_to='dogs/', blank=True, null=True)
+    # image_filename = models.CharField(max_length=255, blank=True, null=True)
+    breed = models.CharField(max_length=100, default="Pure Mutt", blank=True)
     age = models.IntegerField()
     gender = models.CharField(
         max_length=1,
