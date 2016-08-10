@@ -5,7 +5,7 @@ var AddDog = React.createClass({
   mixins: [React.addons.LinkedStateMixin],
 
   getInitialState: function () {
-    return { name: '', age: '', breed: '', gender: 'u', image: '', message: undefined };
+    return { name: '', date_of_birth: '', breed: '', gender: 'u', image: '', message: undefined };
   },
 
   save: function () {
@@ -14,7 +14,7 @@ var AddDog = React.createClass({
     if(file_data) {form_data.append('image', file_data);};
     form_data.append('name', this.state.name);
     form_data.append('breed', this.state.breed);
-    form_data.append('age', this.state.age);
+    form_data.append('date_of_birth', this.state.date_of_birth);
     form_data.append('gender', this.state.gender);
 
     $.ajax({
@@ -55,8 +55,8 @@ var AddDog = React.createClass({
       React.createElement('input', { type: 'text', id: 'dog-name', valueLink: this.linkState('name') }),
       React.createElement('label', null, 'Breed'),
       React.createElement('input', { type: 'text', id: 'dog-breed', valueLink: this.linkState('breed') }),
-      React.createElement('label', null, 'Age (months)*'),
-      React.createElement('input', { type: 'text', id: 'dog-age', valueLink: this.linkState('age') }),
+      React.createElement('label', null, 'Date of birth*'),
+      React.createElement('input', { type: 'date', id: 'dog-age', valueLink: this.linkState('date_of_birth') }),
       React.createElement('label', null, 'Gender'),
       React.createElement('label', null,
         React.createElement('input', { type: 'radio', name: 'gender', value: 'm', onChange: this.makeValueLink }),

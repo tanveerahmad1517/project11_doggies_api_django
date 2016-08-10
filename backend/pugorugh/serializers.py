@@ -26,7 +26,8 @@ class DogSerializer(serializers.ModelSerializer):
             'name',
             'image',
             'breed',
-            'age',
+            # 'age',
+            'date_of_birth',
             'gender',
             'id',
         )

@@ -854,7 +854,7 @@ textarea:focus {
 }
 
 /* line 24, ../sass/circle/core/forms.sass */
-input[type="email"], input[type="number"], input[type="search"], input[type="text"], select, input[type="tel"], input[type="url"], input[type="password"] {
+input[type="email"], input[type="number"], input[type="search"], input[type="text"], select, input[type="tel"], input[type="url"], input[type="password"], input[type="date"] {
   background: #fff;
   width: 100%;
   color: #666;

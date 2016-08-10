@@ -21,6 +21,29 @@ var Dog = React.createClass({
       headers: TokenAuth.getAuthHeader()
     }).done(function (data) {
       this.setState({ details: data, message: undefined });
+      var today = moment();
+      var dateOfBirth = moment(data.date_of_birth, 'YYYY-MM-DD');
+      var age = today.diff(dateOfBirth, 'months');
+      var age_years = today.diff(dateOfBirth, 'years');
+      var age_months = today.diff(dateOfBirth, 'months') - age_years * 12;
+      var age_string = '';
+      if(age_years > 1) {
+        age_string += age_years + " Years ";
+      }
+      if(age_years === 1) {
+        age_string += age_years + " Year ";
+      }
+      if(age_months > 1) {
+        age_string += age_months + " Months";
+      }
+      if(age_months === 1) {
+        age_string += age_months + " Month";
+      }
+
+      this.setState({age: age_string});
+      console.log(age);
+      console.log(age_years);
+      console.log(age_months);
     }.bind(this)).fail(function (response) {
       var message = null;
       if (response.status == 404) {
@@ -197,8 +220,8 @@ var Dog = React.createClass({
         "•",
         this.state.details.breed,
         "•",
-        this.state.details.age,
-        " Months•",
+        this.state.age,
+        "•",
         this.genderLookup[this.state.details.gender],
         "•",
         this.sizeLookup[this.state.details.size]
