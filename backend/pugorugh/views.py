@@ -22,7 +22,7 @@ class UserRegisterView(generics.CreateAPIView):
 
 
 class CreateDog(generics.CreateAPIView):
-    # parser_classes = (parsers.MultiPartParser, parsers.FormParser, parsers.JSONParser,)
+    parser_classes = (parsers.MultiPartParser, parsers.FormParser, parsers.JSONParser,)
     queryset = models.Dog.objects.all()
     serializer_class = serializers.DogSerializer
 
