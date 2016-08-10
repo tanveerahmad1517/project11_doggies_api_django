@@ -13,6 +13,26 @@ var Dog = React.createClass({
   componentWillReceiveProps: function (props) {
     this.setState({ details: undefined, message: undefined, filter: props.filter }, this.getNext);
   },
+  getAge: function (date) {
+    var today = moment();
+    var dateOfBirth = moment(date, 'YYYY-MM-DD');
+    var age_years = today.diff(dateOfBirth, 'years');
+    var age_months = today.diff(dateOfBirth, 'months') - age_years * 12;
+    var age_string = '';
+    if(age_years > 1) {
+      age_string += age_years + " Years ";
+    }
+    if(age_years === 1) {
+      age_string += age_years + " Year ";
+    }
+    if(age_months > 1) {
+      age_string += age_months + " Months";
+    }
+    if(age_months === 1) {
+      age_string += age_months + " Month";
+    }
+    return age_string
+  },
   getNext: function () {
     this.serverRequest = $.ajax({
       url: `api/dog/${ this.state.details ? this.state.details.id : -1 }/${ this.state.filter }/next/`,
@@ -21,29 +41,8 @@ var Dog = React.createClass({
       headers: TokenAuth.getAuthHeader()
     }).done(function (data) {
       this.setState({ details: data, message: undefined });
-      var today = moment();
-      var dateOfBirth = moment(data.date_of_birth, 'YYYY-MM-DD');
-      var age = today.diff(dateOfBirth, 'months');
-      var age_years = today.diff(dateOfBirth, 'years');
-      var age_months = today.diff(dateOfBirth, 'months') - age_years * 12;
-      var age_string = '';
-      if(age_years > 1) {
-        age_string += age_years + " Years ";
-      }
-      if(age_years === 1) {
-        age_string += age_years + " Year ";
-      }
-      if(age_months > 1) {
-        age_string += age_months + " Months";
-      }
-      if(age_months === 1) {
-        age_string += age_months + " Month";
-      }
-
+      var age_string = this.getAge(data.date_of_birth);
       this.setState({age: age_string});
-      console.log(age);
-      console.log(age_years);
-      console.log(age_months);
     }.bind(this)).fail(function (response) {
       var message = null;
       if (response.status == 404) {
@@ -93,6 +92,7 @@ var Dog = React.createClass({
   editDog: function(){},
 
   genderLookup: { m: 'Male', f: 'Female' },
+  intactOrNeuteredLookup: { i: 'Intact', n: 'Neutered' },
   sizeLookup: { s: 'Small', m: 'Medium', l: 'Large', xl: 'Extra Large' },
   dogControls: function () {
     var edit = React.createElement(
@@ -223,6 +223,8 @@ var Dog = React.createClass({
         this.state.age,
         "•",
         this.genderLookup[this.state.details.gender],
+        "•",
+        this.intactOrNeuteredLookup[this.state.details.intact_or_neutered],
         "•",
         this.sizeLookup[this.state.details.size]
       ),

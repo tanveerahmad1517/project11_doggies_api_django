@@ -9,15 +9,32 @@ class Dog(models.Model):
     name = models.CharField(max_length=100)
     image = models.ImageField(upload_to='dogs/', blank=True, null=True)
     # image_filename = models.CharField(max_length=255, blank=True, null=True)
-    breed = models.CharField(max_length=100, default="Pure Mutt", blank=True)
+    breed = models.CharField(max_length=100, default="Unknown mix")
     # age = models.IntegerField()
-    date_of_birth = models.DateField(default=timezone.now)
+    date_of_birth = models.DateField()
     gender = models.CharField(
         max_length=1,
         choices=(
             ('m', 'Male'),
             ('f', 'Female'),
             ('u', 'Unknown'),
+        ),
+    )
+    intact_or_neutered = models.CharField(
+        max_length=1,
+        choices=(
+            ('i', 'Intact'),
+            ('n', 'Neutered'),
+        ),
+        default='i',
+    )
+    size = models.CharField(
+        max_length=8,
+        choices=(
+            ('s', 'Small'),
+            ('m', 'Medium'),
+            ('l', 'Large'),
+            ('xl', 'Extra Large'),
         ),
     )
 

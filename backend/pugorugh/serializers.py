@@ -30,6 +30,7 @@ class DogSerializer(serializers.ModelSerializer):
             'date_of_birth',
             'gender',
             'id',
+            'intact_or_neutered',
         )
         model = models.Dog
 
