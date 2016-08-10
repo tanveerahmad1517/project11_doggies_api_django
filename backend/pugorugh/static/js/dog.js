@@ -53,9 +53,35 @@ var Dog = React.createClass({
   handlePreferencesClick: function (event) {
     this.props.setView("preferences");
   },
+
+  deleteDog: function() {
+    if (confirm('Are you sure you want to delete this dog?')) {
+      $.ajax({
+        url: `api/dog/${ this.state.details.id }/`,
+        type: 'DELETE',
+        headers: TokenAuth.getAuthHeader()
+      }).done(function (data) {
+        this.getNext();
+      }.bind(this)).fail(function (response) {
+        this.setState({message: response.error});
+      }.bind(this));
+    }
+  },
+  editDog: function(){},
+
   genderLookup: { m: 'Male', f: 'Female' },
   sizeLookup: { s: 'Small', m: 'Medium', l: 'Large', xl: 'Extra Large' },
   dogControls: function () {
+    var edit = React.createElement(
+      "a",
+      { onClick: this.editDog},
+      React.createElement("img", { src: "static/icons/pencil.svg", height: "45px" })
+    );
+    var trash = React.createElement(
+      "a",
+      { onClick: this.deleteDog},
+      React.createElement("img", { src: "static/icons/delete-trash.svg", height: "45px" })
+    );
     var like = React.createElement(
       "a",
       { onClick: this.changeDogStatus.bind(this, 'liked') },
@@ -153,6 +179,16 @@ var Dog = React.createClass({
     return React.createElement(
       "div",
       null,
+      React.createElement(
+        "a",
+        { onClick: this.editDog},
+        React.createElement("img", { src: "static/icons/pencil.svg", height: "45px" })
+      ),
+      React.createElement(
+        "a",
+        { onClick: this.deleteDog},
+        React.createElement("img", { src: "static/icons/delete-trash.svg", height: "45px" })
+      ),
       React.createElement("img", { src: this.state.details.image }),
       React.createElement(
         "p",

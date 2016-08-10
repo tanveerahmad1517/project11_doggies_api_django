@@ -5,7 +5,7 @@ var AddDog = React.createClass({
   mixins: [React.addons.LinkedStateMixin],
 
   getInitialState: function () {
-    return { name: '', age: '', breed: '', gender: 'u', image: '' };
+    return { name: '', age: '', breed: '', gender: 'u', image: '', message: undefined };
   },
 
   save: function () {
@@ -18,7 +18,7 @@ var AddDog = React.createClass({
     form_data.append('gender', this.state.gender);
 
     $.ajax({
-      url: "api/dog/new/",
+      url: "api/dog/",
       cache: false,
       type: "POST",
       contentType: false,
@@ -26,9 +26,9 @@ var AddDog = React.createClass({
       headers: TokenAuth.getAuthHeader(),
       data: form_data,
       success: this.props.setView.bind(this, 'undecided'),
-      error: function (req, status) {
-        console.log(status);
-      }
+      error: function (response, status) {
+        this.setState({ message: response.responseText});
+      }.bind(this)
     });
   },
 

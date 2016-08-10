@@ -27,7 +27,7 @@ class CreateDog(generics.CreateAPIView):
     serializer_class = serializers.DogSerializer
 
 
-class RetrieveUpdateDog(generics.RetrieveUpdateAPIView):
+class RetrieveUpdateDestroyDog(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Dog.objects.all()
     serializer_class = serializers.DogSerializer
 
