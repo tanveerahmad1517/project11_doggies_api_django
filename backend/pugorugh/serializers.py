@@ -31,6 +31,7 @@ class DogSerializer(serializers.ModelSerializer):
             'gender',
             'id',
             'intact_or_neutered',
+            'size',
         )
         model = models.Dog
 

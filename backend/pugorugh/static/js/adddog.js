@@ -5,7 +5,7 @@ var AddDog = React.createClass({
   mixins: [React.addons.LinkedStateMixin],
 
   getInitialState: function () {
-    return { name: '', date_of_birth: '', breed: '', gender: 'm', image: '', message: undefined, intact_or_neutered: 'i' };
+    return { name: '', date_of_birth: '', breed: '', gender: 'm', image: '', message: undefined, intact_or_neutered: 'i', size: 's' };
   },
 
   save: function () {
@@ -17,6 +17,7 @@ var AddDog = React.createClass({
     if(this.state.date_of_birth) {form_data.append('date_of_birth', this.state.date_of_birth)}
     if(this.state.gender) {form_data.append('gender', this.state.gender)}
     if(this.state.intact_or_neutered) {form_data.append('intact_or_neutered', this.state.intact_or_neutered)}
+    if(this.state.size) {form_data.append('size', this.state.size)}
 
     $.ajax({
       url: "api/dog/",
@@ -33,9 +34,8 @@ var AddDog = React.createClass({
     });
   },
 
-  makeValueLink: function (e) {
-    key = e.target.name;
-    this.setState({key: e.target.value});
+  makeValueLinkSize: function (e) {
+    this.setState({size: e.target.value});
   },
 
   makeValueLinkGender: function (e) {
@@ -90,6 +90,23 @@ var AddDog = React.createClass({
         React.createElement('input', { type: 'radio', name: 'intact_or_neutered', value: 'n', onChange: this.makeValueLinkIntactOrNeutered }),
         React.createElement('span', { className: 'label-body' }, 'Neutered')
       ),
+      React.createElement('label', null, 'Size*'),
+      React.createElement('label', null,
+        React.createElement('input', { type: 'radio', name: 'size', value: 's', defaultChecked: true, onChange: this.makeValueLinkSize }),
+        React.createElement('span', { className: 'label-body' }, 'Small')
+      ),
+      React.createElement('label', null,
+        React.createElement('input', { type: 'radio', name: 'size', value: 'm', onChange: this.makeValueLinkSize }),
+        React.createElement('span', { className: 'label-body' }, 'Medium')
+      ),  
+      React.createElement('label', null,
+        React.createElement('input', { type: 'radio', name: 'size', value: 'l', onChange: this.makeValueLinkSize }),
+        React.createElement('span', { className: 'label-body' }, 'Large')
+      ),
+      React.createElement('label', null,
+        React.createElement('input', { type: 'radio', name: 'size', value: 'xl', onChange: this.makeValueLinkSize }),
+        React.createElement('span', { className: 'label-body' }, 'Extra Large')
+      ),    
       React.createElement('br'),
       React.createElement(
         'button',

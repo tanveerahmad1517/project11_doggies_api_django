@@ -29,7 +29,7 @@ class Dog(models.Model):
         default='i',
     )
     size = models.CharField(
-        max_length=8,
+        max_length=2,
         choices=(
             ('s', 'Small'),
             ('m', 'Medium'),
