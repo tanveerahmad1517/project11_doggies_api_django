@@ -2,7 +2,7 @@ var Dog = React.createClass({
   displayName: "Dog",
 
   getInitialState: function () {
-    return { filter: this.props.filter };
+    return {filter: this.props.filter};
   },
   componentDidMount: function () {
     this.getFirst();
@@ -11,7 +11,11 @@ var Dog = React.createClass({
     this.serverRequest.abort();
   },
   componentWillReceiveProps: function (props) {
-    this.setState({ details: undefined, message: undefined, filter: props.filter }, this.getNext);
+    this.setState({
+      details: undefined,
+      message: undefined,
+      filter: props.filter
+    }, this.getNext);
   },
   getAge: function (date) {
     var today = moment();
@@ -19,16 +23,16 @@ var Dog = React.createClass({
     var age_years = today.diff(dateOfBirth, 'years');
     var age_months = today.diff(dateOfBirth, 'months') - age_years * 12;
     var age_string = '';
-    if(age_years > 1) {
+    if (age_years > 1) {
       age_string += age_years + " Years ";
     }
-    if(age_years === 1) {
+    if (age_years === 1) {
       age_string += age_years + " Year ";
     }
-    if(age_months > 1) {
+    if (age_months > 1) {
       age_string += age_months + " Months";
     }
-    if(age_months === 1) {
+    if (age_months === 1) {
       age_string += age_months + " Month";
     }
     return age_string
@@ -40,7 +44,7 @@ var Dog = React.createClass({
       dataType: "json",
       headers: TokenAuth.getAuthHeader()
     }).done(function (data) {
-      this.setState({ details: data, message: undefined });
+      this.setState({details: data, message: undefined});
       var age_string = this.getAge(data.date_of_birth);
       this.setState({age: age_string});
     }.bind(this)).fail(function (response) {
@@ -54,7 +58,7 @@ var Dog = React.createClass({
       } else {
         message = response.error;
       }
-      this.setState({ message: message, details: undefined });
+      this.setState({message: message, details: undefined});
     }.bind(this));
   },
   changeDogStatus: function (newStatus) {
@@ -66,7 +70,7 @@ var Dog = React.createClass({
     }).done(function (data) {
       this.getNext();
     }.bind(this)).fail(function (response) {
-      this.setState({ message: response.error });
+      this.setState({message: response.error});
     }.bind(this));
   },
   getFirst: function () {
@@ -76,18 +80,30 @@ var Dog = React.createClass({
     this.props.setView("preferences");
   },
 
+  showConfirmation: function () {
+    swal({
+      title: "Are you sure you want to delete this dog?",
+      type: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#DD6B55",
+      confirmButtonText: "Yes, delete it!",
+      closeOnConfirm: true
+    },
+    function(){
+      this.deleteDog();
+    }.bind(this))
+  },
+
   deleteDog: function() {
-    if (confirm('Are you sure you want to delete this dog?')) {
-      $.ajax({
-        url: `api/dog/${ this.state.details.id }/`,
-        type: 'DELETE',
-        headers: TokenAuth.getAuthHeader()
-      }).done(function (data) {
-        this.getNext();
-      }.bind(this)).fail(function (response) {
-        this.setState({message: response.error});
-      }.bind(this));
-    }
+    $.ajax({
+      url: `api/dog/${ this.state.details.id }/`,
+      type: 'DELETE',
+      headers: TokenAuth.getAuthHeader()
+    }).done(function (data) {
+      this.getNext();
+    }.bind(this)).fail(function (response) {
+      this.setState({message: response.error});
+    }.bind(this));
   },
   editDog: function(){},
 
@@ -95,16 +111,6 @@ var Dog = React.createClass({
   intactOrNeuteredLookup: { i: 'Intact', n: 'Neutered' },
   sizeLookup: { s: 'Small', m: 'Medium', l: 'Large', xl: 'Extra Large' },
   dogControls: function () {
-    var edit = React.createElement(
-      "a",
-      { onClick: this.editDog},
-      React.createElement("img", { src: "static/icons/pencil.svg", height: "45px" })
-    );
-    var trash = React.createElement(
-      "a",
-      { onClick: this.deleteDog},
-      React.createElement("img", { src: "static/icons/delete-trash.svg", height: "45px" })
-    );
     var like = React.createElement(
       "a",
       { onClick: this.changeDogStatus.bind(this, 'liked') },
@@ -209,7 +215,7 @@ var Dog = React.createClass({
       ),
       React.createElement(
         "a",
-        { onClick: this.deleteDog},
+        { onClick: this.showConfirmation.bind(this)},
         React.createElement("img", { src: "static/icons/delete-trash.svg", height: "45px" })
       ),
       React.createElement("img", { src: this.state.details.image }),
