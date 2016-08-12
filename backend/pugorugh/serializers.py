@@ -20,6 +20,13 @@ class UserSerializer(serializers.ModelSerializer):
         model = get_user_model()
 
 
+class StaffUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = get_user_model()
+        fields = ('is_staff',)
+        extra_kwargs = {'user': {'write_only': True}}
+
+
 class DogSerializer(serializers.ModelSerializer):
     class Meta:
         fields = (

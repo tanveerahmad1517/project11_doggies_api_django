@@ -1,7 +1,21 @@
 var Dog = React.createClass({
   displayName: "Dog",
-
+  
+  getAuthorization: function () {
+    $.ajax({
+      url: `api/user/isstaff/`,
+      method: "GET",
+      dataType: "json",
+      headers: TokenAuth.getAuthHeader()
+    }).done(function (data) {
+      this.setState({authorized: data.is_staff});
+    }.bind(this)).fail(function (response) {
+      var message = response.error;
+      this.setState({message: message});
+    }.bind(this));
+  },
   getInitialState: function () {
+    this.getAuthorization();
     return {filter: this.props.filter};
   },
   componentDidMount: function () {
@@ -79,7 +93,9 @@ var Dog = React.createClass({
   handlePreferencesClick: function (event) {
     this.props.setView("preferences");
   },
-
+  handleAddDogClick: function (event) {
+    this.props.setView("adddog");
+  },
   showConfirmation: function () {
     swal({
       title: "Are you sure you want to delete this dog?",
@@ -204,38 +220,58 @@ var Dog = React.createClass({
         )
       );
     }
+    var editElement = '';
+    var deleteElement = '';
+    if(this.state.authorized) {
+      editElement = React.createElement(
+        "a",
+        {onClick: this.editDog},
+        React.createElement("img", {
+          src: "static/icons/pencil.svg",
+          height: "45px"
+        })
+      );
+      editElement = React.createElement(
+        "a",
+        { onClick: this.handleAddDogClick },
+        React.createElement("img", {
+          src: "static/icons/pencil.svg",
+          height: "45px"
+        })
+      );
 
-    return React.createElement(
-      "div",
-      null,
-      React.createElement(
+      deleteElement = React.createElement(
         "a",
-        { onClick: this.editDog},
-        React.createElement("img", { src: "static/icons/pencil.svg", height: "45px" })
-      ),
-      React.createElement(
-        "a",
-        { onClick: this.showConfirmation.bind(this)},
-        React.createElement("img", { src: "static/icons/delete-trash.svg", height: "45px" })
-      ),
-      React.createElement("img", { src: this.state.details.image }),
-      React.createElement(
-        "p",
-        { className: "dog-card" },
-        this.state.details.name,
-        "•",
-        this.state.details.breed,
-        "•",
-        this.state.age,
-        "•",
-        this.genderLookup[this.state.details.gender],
-        "•",
-        this.intactOrNeuteredLookup[this.state.details.intact_or_neutered],
-        "•",
-        this.sizeLookup[this.state.details.size]
-      ),
-      this.dogControls()
-    );
+        {onClick: this.showConfirmation.bind(this)},
+        React.createElement("img", {
+          src: "static/icons/delete-trash.svg",
+          height: "45px"
+        })
+      );
+    }
+      return React.createElement(
+        "div",
+        null,
+        editElement,
+        deleteElement,
+        React.createElement("img", {src: this.state.details.image}),
+        React.createElement(
+            "p",
+            {className: "dog-card"},
+            this.state.details.name,
+            "•",
+            this.state.details.breed,
+            "•",
+            this.state.age,
+            "•",
+            this.genderLookup[this.state.details.gender],
+            "•",
+            this.intactOrNeuteredLookup[this.state.details.intact_or_neutered],
+            "•",
+            this.sizeLookup[this.state.details.size]
+        ),
+        this.dogControls()
+      );
   },
   render: function () {
     return React.createElement(

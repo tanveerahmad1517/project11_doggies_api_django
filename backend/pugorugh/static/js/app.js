@@ -26,7 +26,7 @@ var PugOrUgh = React.createClass({
         var component = React.createElement(Login, { setView: this.setView });
         break;
       case "adddog":
-        var component = React.createElement(AddDog, { setView: this.setView });
+        var component = React.createElement(AddDog, {setView: this.setView});
         break;
     }
 
@@ -107,16 +107,7 @@ var PugOrUgh = React.createClass({
                       { onClick: this.setView.bind(this, "disliked") },
                       "Disliked"
                     )
-                  ),
-                  React.createElement(
-                    "li",
-                    { className: this.state.viewName == "adddog" ? "current-tab" : "" },
-                    React.createElement(
-                      "a",
-                      { onClick: this.setView.bind(this, "adddog") },
-                      "Add Dog"
-                    )
-                  )  
+                  )
                 )
               )
             )

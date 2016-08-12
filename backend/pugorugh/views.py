@@ -57,13 +57,23 @@ class UserRegisterView(generics.CreateAPIView):
     serializer_class = serializers.UserSerializer
 
 
+class IsStaff(APIView):
+    def get(self, request):
+        user = self.request.user
+        serializer = serializers.StaffUserSerializer(user)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class CreateDog(generics.CreateAPIView):
+    permission_classes = (permissions.IsAdminUser,)
     parser_classes = (parsers.MultiPartParser, parsers.FormParser, parsers.JSONParser,)
     queryset = models.Dog.objects.all()
     serializer_class = serializers.DogSerializer
 
 
-class RetrieveUpdateDestroyDog(generics.RetrieveUpdateDestroyAPIView):
+class DestroyDog(generics.DestroyAPIView):
+    permission_classes = (permissions.IsAdminUser,)
     queryset = models.Dog.objects.all()
     serializer_class = serializers.DogSerializer
 
