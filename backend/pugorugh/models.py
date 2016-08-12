@@ -17,7 +17,6 @@ class Dog(models.Model):
         choices=(
             ('m', 'Male'),
             ('f', 'Female'),
-            ('u', 'Unknown'),
         ),
     )
     intact_or_neutered = models.CharField(

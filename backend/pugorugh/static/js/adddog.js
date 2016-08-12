@@ -39,7 +39,6 @@ var AddDog = React.createClass({
   },
 
   makeValueLinkGender: function (e) {
-    console.log(e.target.name);
     this.setState({gender: e.target.value});
   },
 
@@ -77,10 +76,6 @@ var AddDog = React.createClass({
         React.createElement('input', { type: 'radio', name: 'gender', value: 'f', onChange: this.makeValueLinkGender }),
         React.createElement('span', { className: 'label-body' }, 'Female')
       ),
-      // React.createElement('label', null,
-      //   React.createElement('input', { type: 'radio', name: 'gender', value: 'u', onChange: this.makeValueLinkGender }),
-      //   React.createElement('span', { className: 'label-body' }, 'Unknown')
-      // ),
       React.createElement('label', null, 'Intact or Neutered*'),
       React.createElement('label', null,
         React.createElement('input', { type: 'radio', name: 'intact_or_neutered', value: 'i', defaultChecked: true, onChange: this.makeValueLinkIntactOrNeutered }),
