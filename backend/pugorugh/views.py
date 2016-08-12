@@ -1,8 +1,13 @@
+import operator
+
 from bisect import bisect
+from functools import reduce
 
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 
 from rest_framework import generics
 from rest_framework import permissions
@@ -13,6 +18,37 @@ from rest_framework.views import APIView
 
 from . import models
 from . import serializers
+
+
+def age_to_query(age_list):
+    bdays = []
+    today = timezone.now().date()
+    for age in age_list:
+        if age == 'b':
+            td_to = timezone.timedelta(days=1*365)
+            from_to = (today-td_to, today)
+            bdays.append(from_to)
+        elif age == 'y':
+            td_from = timezone.timedelta(days=1*365)
+            td_to = timezone.timedelta(days=3*365)
+            from_to = (today-td_to, today-td_from)
+            bdays.append(from_to)
+        elif age == 'a':
+            td_from = timezone.timedelta(days=3*365)
+            td_to = timezone.timedelta(days=8*365)
+            from_to = (today - td_to, today - td_from)
+            bdays.append(from_to)
+        else:
+            td_from = timezone.timedelta(days=8*365)
+            td_to = timezone.timedelta(days=30*365)
+            from_to = (today-td_to, today-td_from)
+            bdays.append(from_to)
+
+    query = reduce(
+        operator.or_,
+        (Q(date_of_birth__range=time_range) for time_range in bdays)
+    )
+    return query
 
 
 class UserRegisterView(generics.CreateAPIView):
@@ -46,21 +82,30 @@ class RetrieveFilteredDog(generics.RetrieveAPIView):
         user = self.request.user
         pk = int(self.kwargs.get('pk'))
         dog_filter = self.kwargs.get('dog_filter')
-        print(filter)
 
         if dog_filter == 'undecided':
             # Get ids of all dogs liked and disliked by the current user.
             decided_dogs_ids = models.Dog.objects.filter(
                 userdog__user=user
             ).values_list('id', flat=True)
-            print(decided_dogs_ids)
 
-            # Get a list of ordered ids of all dogs undecided by the current
-            # user.
+            # Get size, gender and age of dogs the current user prefers.
+            (size, gender, age) = models.UserPref.objects.filter(
+                user=user
+            ).values_list('size','gender', 'age')[0]
+
+            # Convert the preferred age into the age query.
+            age_query = age_to_query(age)
+
+            # Get a list of ordered ids of all undecided dogs, which suit the
+            # current user.
             filtered_dogs_ids = models.Dog.objects.exclude(
                 id__in=decided_dogs_ids
+            ).filter(
+                age_query,
+                size__in=list(size),
+                gender__in=gender,
             ).order_by('id').values_list('id', flat=True)
-            print(filtered_dogs_ids)
 
         elif dog_filter == 'liked':
             # Get ids of all dogs liked by the current user.
@@ -68,7 +113,6 @@ class RetrieveFilteredDog(generics.RetrieveAPIView):
                 userdog__user=user,
                 userdog__status='l'
             ).order_by('id').values_list('id', flat=True)
-            print(filtered_dogs_ids)
 
         else:
             # Get ids of all dogs disliked by the current user.
@@ -76,7 +120,6 @@ class RetrieveFilteredDog(generics.RetrieveAPIView):
                 userdog__user=user,
                 userdog__status='d'
             ).order_by('id').values_list('id', flat=True)
-            print(filtered_dogs_ids)
 
         # If there are filtered dogs
         if filtered_dogs_ids:
@@ -88,8 +131,6 @@ class RetrieveFilteredDog(generics.RetrieveAPIView):
             else:
                 index = bisect(filtered_dogs_ids, pk)
                 dog_id = filtered_dogs_ids[index]
-
-            print(dog_id)
 
             return get_object_or_404(
                 self.get_queryset(),
