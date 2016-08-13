@@ -1,3 +1,5 @@
+from dateutil.relativedelta import relativedelta
+
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 
@@ -29,12 +31,14 @@ class StaffUserSerializer(serializers.ModelSerializer):
 
 
 class DogSerializer(serializers.ModelSerializer):
+    age = serializers.SerializerMethodField()
+
     class Meta:
         fields = (
             'name',
             'image',
             'breed',
-            # 'age',
+            'age',
             'date_of_birth',
             'gender',
             'id',
@@ -43,6 +47,28 @@ class DogSerializer(serializers.ModelSerializer):
         )
         model = models.Dog
 
+    def get_age(self, object):
+        age = ''
+        date_of_birth = object.date_of_birth
+        if date_of_birth:
+            today = timezone.now().date()
+            age_years = relativedelta(today, date_of_birth).years
+            age_months = (relativedelta(today, date_of_birth).months)
+
+            if age_years > 1:
+                age += str(age_years) + " Years "
+            elif age_years == 1:
+                age += str(age_years) + " Year "
+
+            if age_months > 1:
+                age += str(age_months) + " Months"
+            elif age_months == 1:
+                age += str(age_months) + " Month"
+
+            if age_years == 0 and age_months == 0:
+                age = "Born today"
+
+        return age
 
     def validate_date_of_birth(self, value):
         """Checks that date of birth is not in the future."""
