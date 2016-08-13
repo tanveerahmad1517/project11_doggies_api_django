@@ -47,10 +47,12 @@ var AddDog = React.createClass({
   },
 
   disabled: function () {
-    return $.trim(this.state.name) == '' || this.state.date_of_birth == '';
+    var today = moment().format('YYYY-MM-DD');
+    return $.trim(this.state.name) == '' || this.state.date_of_birth == '' || this.state.date_of_birth > today;
   },
 
   render: function () {
+    var today = moment().format('YYYY-MM-DD');
     return React.createElement(
       'div',
       null,
@@ -66,7 +68,7 @@ var AddDog = React.createClass({
       React.createElement('label', null, 'Breed'),
       React.createElement('input', { type: 'text', id: 'dog-breed', valueLink: this.linkState('breed') }),
       React.createElement('label', null, 'Date of birth*'),
-      React.createElement('input', { type: 'date', id: 'dog-age', valueLink: this.linkState('date_of_birth') }),
+      React.createElement('input', { type: 'date', id: 'dog-age', max: today, valueLink: this.linkState('date_of_birth') }),
       React.createElement('label', null, 'Gender*'),
       React.createElement('label', null,
         React.createElement('input', { type: 'radio', name: 'gender', value: 'm', defaultChecked: true, onChange: this.makeValueLinkGender }),

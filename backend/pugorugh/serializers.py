@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 from rest_framework import serializers
 
@@ -41,6 +42,17 @@ class DogSerializer(serializers.ModelSerializer):
             'size',
         )
         model = models.Dog
+
+
+    def validate_date_of_birth(self, value):
+        """Checks that date of birth is not in the future."""
+        today = timezone.now().date()
+        print(value, today)
+        if value > today:
+            raise serializers.ValidationError(
+                'Date of birth cannot be in the future'
+            )
+        return value
 
 
 class UserPrefSerializer(serializers.ModelSerializer):

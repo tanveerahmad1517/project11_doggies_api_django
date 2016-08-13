@@ -49,6 +49,9 @@ var Dog = React.createClass({
     if (age_months === 1) {
       age_string += age_months + " Month";
     }
+    if (age_years == 0 && age_months == 0) {
+      age_string = "Born today"
+    }
     return age_string
   },
   getNext: function () {
@@ -200,7 +203,7 @@ var Dog = React.createClass({
       );
     }
 
-    if (!this.state.details) {
+    if (this.state.details.id === -1) {
       return React.createElement(
         "div",
         null,
@@ -223,14 +226,6 @@ var Dog = React.createClass({
     var editElement = '';
     var deleteElement = '';
     if(this.state.authorized) {
-      editElement = React.createElement(
-        "a",
-        {onClick: this.editDog},
-        React.createElement("img", {
-          src: "static/icons/pencil.svg",
-          height: "45px"
-        })
-      );
       editElement = React.createElement(
         "a",
         { onClick: this.handleAddDogClick },

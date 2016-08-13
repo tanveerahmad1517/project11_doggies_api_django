@@ -93,6 +93,7 @@ class RetrieveFilteredDog(generics.RetrieveAPIView):
         pk = int(self.kwargs.get('pk'))
         dog_filter = self.kwargs.get('dog_filter')
 
+
         if dog_filter == 'undecided':
             # Get ids of all dogs liked and disliked by the current user.
             decided_dogs_ids = models.Dog.objects.filter(
@@ -138,6 +139,16 @@ class RetrieveFilteredDog(generics.RetrieveAPIView):
             if pk >= filtered_dogs_ids[len(filtered_dogs_ids) - 1]:
                 # Set dog_id to the lowest filtered dog id
                 dog_id = filtered_dogs_ids[0]
+                return models.Dog(
+                    name=None,
+                    image=None,
+                    breed=None,
+                    date_of_birth=None,
+                    gender=None,
+                    id=-1,
+                    intact_or_neutered=None,
+                    size=None
+                )
             else:
                 index = bisect(filtered_dogs_ids, pk)
                 dog_id = filtered_dogs_ids[index]
@@ -150,6 +161,88 @@ class RetrieveFilteredDog(generics.RetrieveAPIView):
         # If there are no filtered dogs
         else:
             raise Http404
+
+
+# class RetrieveFilteredDog(APIView):
+#     def get(self, request, pk, dog_filter):
+#         queryset = models.Dog.objects.all()
+#         serializer_class = serializers.DogSerializer
+#
+#         user = self.request.user
+#         pk = int(pk)
+#         # dog_filter = self.kwargs.get('dog_filter')
+#
+#
+#         if dog_filter == 'undecided':
+#             # Get ids of all dogs liked and disliked by the current user.
+#             decided_dogs_ids = models.Dog.objects.filter(
+#                 userdog__user=user
+#             ).values_list('id', flat=True)
+#
+#             # Get size, gender and age of dogs the current user prefers.
+#             (size, gender, age) = models.UserPref.objects.filter(
+#                 user=user
+#             ).values_list('size','gender', 'age')[0]
+#
+#             # Convert the preferred age into the age query.
+#             age_query = age_to_query(age)
+#
+#             # Get a list of ordered ids of all undecided dogs, which suit the
+#             # current user.
+#             filtered_dogs_ids = models.Dog.objects.exclude(
+#                 id__in=decided_dogs_ids
+#             ).filter(
+#                 age_query,
+#                 size__in=list(size),
+#                 gender__in=gender,
+#             ).order_by('id').values_list('id', flat=True)
+#
+#         elif dog_filter == 'liked':
+#             # Get ids of all dogs liked by the current user.
+#             filtered_dogs_ids = models.Dog.objects.filter(
+#                 userdog__user=user,
+#                 userdog__status='l'
+#             ).order_by('id').values_list('id', flat=True)
+#
+#         else:
+#             # Get ids of all dogs disliked by the current user.
+#             filtered_dogs_ids = models.Dog.objects.filter(
+#                 userdog__user=user,
+#                 userdog__status='d'
+#             ).order_by('id').values_list('id', flat=True)
+#
+#         # If there are filtered dogs
+#         if filtered_dogs_ids:
+#
+#             # If pk is equal or greater than the highest filtered dog id
+#             if pk >= filtered_dogs_ids[len(filtered_dogs_ids) - 1]:
+#                 # Set dog_id to the lowest filtered dog id
+#                 dog_id = filtered_dogs_ids[0]
+#                 return Response(
+#                     {"name": None, "image": None,
+#                      "breed": None,
+#                      "date_of_birth": None, "gender": None, "id": -1,
+#                      "intact_or_neutered": None, "size": None},
+#                     status=status.HTTP_200_OK
+#                 )
+#             else:
+#                 index = bisect(filtered_dogs_ids, pk)
+#                 dog_id = filtered_dogs_ids[index]
+#
+#             object = get_object_or_404(
+#                 models.Dog,
+#                 pk=dog_id,
+#             )
+#             serializer = serializer_class(object)
+#
+#             return Response(serializer.data, status=status.HTTP_200_OK)
+#
+#         # If there are no filtered dogs
+#         else:
+#             raise Http404
+
+
+
 
 
 class UpdateDogStatus(APIView):
