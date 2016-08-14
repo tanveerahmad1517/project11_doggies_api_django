@@ -37,8 +37,8 @@ class Dog(models.Model):
 
 class UserDog(models.Model):
     """User's Dog decision model class."""
-    user = models.ForeignKey(User)
-    dog = models.ForeignKey(Dog)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    dog = models.ForeignKey(Dog, on_delete=models.CASCADE)
     status = models.CharField(
         max_length=1,
         choices=(
@@ -53,7 +53,7 @@ class UserDog(models.Model):
 
 class UserPref(models.Model):
     """User Preference model class."""
-    user = models.OneToOneField(User)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     age = models.CharField(
         max_length=7,
         default='b,y,a,s'
