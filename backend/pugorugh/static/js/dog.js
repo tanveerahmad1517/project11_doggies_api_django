@@ -99,8 +99,6 @@ var Dog = React.createClass({
       this.setState({message: response.error});
     }.bind(this));
   },
-  editDog: function(){},
-
   genderLookup: { m: 'Male', f: 'Female' },
   intactOrNeuteredLookup: { i: 'Intact', n: 'Neutered' },
   sizeLookup: { s: 'Small', m: 'Medium', l: 'Large', xl: 'Extra Large' },
@@ -205,7 +203,7 @@ var Dog = React.createClass({
         "a",
         { onClick: this.handleAddDogClick },
         React.createElement("img", {
-          src: "static/icons/pencil.svg",
+          src: "static/icons/plus.svg",
           height: "45px"
         })
       );
@@ -222,23 +220,25 @@ var Dog = React.createClass({
       return React.createElement(
         "div",
         null,
-        editElement,
-        deleteElement,
+        React.createElement('p', { className: "text-centered dog-controls" },
+          editElement,
+          deleteElement
+        ),
         React.createElement("img", {src: this.state.details.image}),
         React.createElement(
-            "p",
-            {className: "dog-card"},
-            this.state.details.name,
-            "•",
-            this.state.details.breed,
-            "•",
-            this.state.details.age,
-            "•",
-            this.genderLookup[this.state.details.gender],
-            "•",
-            this.intactOrNeuteredLookup[this.state.details.intact_or_neutered],
-            "•",
-            this.sizeLookup[this.state.details.size]
+          "p",
+          {className: "dog-card"},
+          this.state.details.name,
+          "•",
+          this.state.details.breed,
+          "•",
+          this.state.details.age,
+          "•",
+          this.genderLookup[this.state.details.gender],
+          "•",
+          this.intactOrNeuteredLookup[this.state.details.intact_or_neutered],
+          "•",
+          this.sizeLookup[this.state.details.size]
         ),
         this.dogControls()
       );

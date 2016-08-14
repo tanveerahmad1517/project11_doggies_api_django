@@ -1,16 +1,13 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save
-from django.utils import timezone
 
 
 class Dog(models.Model):
     """Dog model class."""
     name = models.CharField(max_length=100)
     image = models.ImageField(upload_to='dogs/', blank=True, null=True)
-    # image_filename = models.CharField(max_length=255, blank=True, null=True)
     breed = models.CharField(max_length=100, default="Unknown mix")
-    # age = models.IntegerField()
     date_of_birth = models.DateField()
     gender = models.CharField(
         max_length=1,

@@ -21,58 +21,63 @@ from . import serializers
 
 
 def age_to_query(age_list):
-    bdays = []
+    """From UserPref age attributes forms a query to filter dogs."""
+    time_ranges = []
     today = timezone.now().date()
     for age in age_list:
         if age == 'b':
-            td_to = timezone.timedelta(days=1*365)
-            from_to = (today-td_to, today)
-            bdays.append(from_to)
+            td_start = timezone.timedelta(days=1*365)
+            time_range = (today-td_start, today)
         elif age == 'y':
-            td_from = timezone.timedelta(days=1*365)
-            td_to = timezone.timedelta(days=3*365)
-            from_to = (today-td_to, today-td_from)
-            bdays.append(from_to)
+            td_end = timezone.timedelta(days=1*365)
+            td_start = timezone.timedelta(days=3*365)
+            time_range = (today-td_start, today-td_end)
         elif age == 'a':
-            td_from = timezone.timedelta(days=3*365)
-            td_to = timezone.timedelta(days=8*365)
-            from_to = (today - td_to, today - td_from)
-            bdays.append(from_to)
+            td_end = timezone.timedelta(days=3*365)
+            td_start = timezone.timedelta(days=8*365)
+            time_range = (today - td_start, today - td_end)
         else:
-            td_from = timezone.timedelta(days=8*365)
-            td_to = timezone.timedelta(days=30*365)
-            from_to = (today-td_to, today-td_from)
-            bdays.append(from_to)
+            td_end = timezone.timedelta(days=8*365)
+            td_start = timezone.timedelta(days=30*365)
+            time_range = (today-td_start, today-td_end)
+        time_ranges.append(time_range)
 
     query = reduce(
         operator.or_,
-        (Q(date_of_birth__range=time_range) for time_range in bdays)
+        (Q(date_of_birth__range=time_range) for time_range in time_ranges)
     )
     return query
 
 
 class UserRegisterView(generics.CreateAPIView):
+    """View for user registration."""
     permission_classes = (permissions.AllowAny,)
     model = get_user_model()
     serializer_class = serializers.UserSerializer
 
 
-class IsStaff(APIView):
-    def get(self, request):
-        user = self.request.user
-        serializer = serializers.StaffUserSerializer(user)
+class IsStaff(generics.RetrieveAPIView):
+    """View to get whether the current user is staff or not."""
+    serializer_class = serializers.StaffUserSerializer
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    def get_object(self):
+        return self.request.user
 
 
 class CreateDog(generics.CreateAPIView):
+    """View to create a dog."""
     permission_classes = (permissions.IsAdminUser,)
-    parser_classes = (parsers.MultiPartParser, parsers.FormParser, parsers.JSONParser,)
+    # parser_classes = (
+        # parsers.MultiPartParser,
+        # parsers.FormParser,
+        # parsers.JSONParser,
+        # )
     queryset = models.Dog.objects.all()
     serializer_class = serializers.DogSerializer
 
 
 class DestroyDog(generics.DestroyAPIView):
+    """View to delete a dog."""
     permission_classes = (permissions.IsAdminUser,)
     queryset = models.Dog.objects.all()
     serializer_class = serializers.DogSerializer
@@ -85,6 +90,15 @@ class DestroyDog(generics.DestroyAPIView):
 
 
 class RetrieveFilteredDog(generics.RetrieveAPIView):
+    """View to get the next dog based on the user filter choice (undecided,
+    liked or disliked).
+
+    When all the dogs have been shown an imaginary Dog
+    with the id of -1 is sent in a response to let user know that there are
+    no more dogs left.
+
+    Only those undecided dogs that match user preferences are shown.
+    """
     queryset = models.Dog.objects.all()
     serializer_class = serializers.DogSerializer
 
@@ -93,13 +107,7 @@ class RetrieveFilteredDog(generics.RetrieveAPIView):
         pk = int(self.kwargs.get('pk'))
         dog_filter = self.kwargs.get('dog_filter')
 
-
         if dog_filter == 'undecided':
-            # Get ids of all dogs liked and disliked by the current user.
-            decided_dogs_ids = models.Dog.objects.filter(
-                userdog__user=user
-            ).values_list('id', flat=True)
-
             # Get size, gender and age of dogs the current user prefers.
             (size, gender, age) = models.UserPref.objects.filter(
                 user=user
@@ -107,6 +115,11 @@ class RetrieveFilteredDog(generics.RetrieveAPIView):
 
             # Convert the preferred age into the age query.
             age_query = age_to_query(age)
+
+            # Get ids of all dogs liked and disliked by the current user.
+            decided_dogs_ids = models.Dog.objects.filter(
+                userdog__user=user
+            ).values_list('id', flat=True)
 
             # Get a list of ordered ids of all undecided dogs, which suit the
             # current user.
@@ -137,8 +150,7 @@ class RetrieveFilteredDog(generics.RetrieveAPIView):
 
             # If pk is equal or greater than the highest filtered dog id
             if pk >= filtered_dogs_ids[len(filtered_dogs_ids) - 1]:
-                # Set dog_id to the lowest filtered dog id
-                dog_id = filtered_dogs_ids[0]
+                # Send an imaginary Dog with the id od -1
                 return models.Dog(
                     name=None,
                     image=None,
@@ -150,6 +162,7 @@ class RetrieveFilteredDog(generics.RetrieveAPIView):
                     size=None
                 )
             else:
+                # Get the id of the next dog
                 index = bisect(filtered_dogs_ids, pk)
                 dog_id = filtered_dogs_ids[index]
 
@@ -163,89 +176,8 @@ class RetrieveFilteredDog(generics.RetrieveAPIView):
             raise Http404
 
 
-# class RetrieveFilteredDog(APIView):
-#     def get(self, request, pk, dog_filter):
-#         queryset = models.Dog.objects.all()
-#         serializer_class = serializers.DogSerializer
-#
-#         user = self.request.user
-#         pk = int(pk)
-#         # dog_filter = self.kwargs.get('dog_filter')
-#
-#
-#         if dog_filter == 'undecided':
-#             # Get ids of all dogs liked and disliked by the current user.
-#             decided_dogs_ids = models.Dog.objects.filter(
-#                 userdog__user=user
-#             ).values_list('id', flat=True)
-#
-#             # Get size, gender and age of dogs the current user prefers.
-#             (size, gender, age) = models.UserPref.objects.filter(
-#                 user=user
-#             ).values_list('size','gender', 'age')[0]
-#
-#             # Convert the preferred age into the age query.
-#             age_query = age_to_query(age)
-#
-#             # Get a list of ordered ids of all undecided dogs, which suit the
-#             # current user.
-#             filtered_dogs_ids = models.Dog.objects.exclude(
-#                 id__in=decided_dogs_ids
-#             ).filter(
-#                 age_query,
-#                 size__in=list(size),
-#                 gender__in=gender,
-#             ).order_by('id').values_list('id', flat=True)
-#
-#         elif dog_filter == 'liked':
-#             # Get ids of all dogs liked by the current user.
-#             filtered_dogs_ids = models.Dog.objects.filter(
-#                 userdog__user=user,
-#                 userdog__status='l'
-#             ).order_by('id').values_list('id', flat=True)
-#
-#         else:
-#             # Get ids of all dogs disliked by the current user.
-#             filtered_dogs_ids = models.Dog.objects.filter(
-#                 userdog__user=user,
-#                 userdog__status='d'
-#             ).order_by('id').values_list('id', flat=True)
-#
-#         # If there are filtered dogs
-#         if filtered_dogs_ids:
-#
-#             # If pk is equal or greater than the highest filtered dog id
-#             if pk >= filtered_dogs_ids[len(filtered_dogs_ids) - 1]:
-#                 # Set dog_id to the lowest filtered dog id
-#                 dog_id = filtered_dogs_ids[0]
-#                 return Response(
-#                     {"name": None, "image": None,
-#                      "breed": None,
-#                      "date_of_birth": None, "gender": None, "id": -1,
-#                      "intact_or_neutered": None, "size": None},
-#                     status=status.HTTP_200_OK
-#                 )
-#             else:
-#                 index = bisect(filtered_dogs_ids, pk)
-#                 dog_id = filtered_dogs_ids[index]
-#
-#             object = get_object_or_404(
-#                 models.Dog,
-#                 pk=dog_id,
-#             )
-#             serializer = serializer_class(object)
-#
-#             return Response(serializer.data, status=status.HTTP_200_OK)
-#
-#         # If there are no filtered dogs
-#         else:
-#             raise Http404
-
-
-
-
-
 class UpdateDogStatus(APIView):
+    """View to update dog's status."""
     def put(self, request, pk, dog_status):
 
         user = request.user
@@ -274,7 +206,7 @@ class UpdateDogStatus(APIView):
 
 
 class RetrieveUpdateUserPreferences(generics.RetrieveUpdateAPIView):
-
+    """View to get and set user preferences."""
     queryset = models.UserPref.objects.all()
     serializer_class = serializers.UserPrefSerializer
 

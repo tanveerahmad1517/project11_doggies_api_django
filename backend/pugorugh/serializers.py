@@ -27,7 +27,6 @@ class StaffUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
         fields = ('is_staff',)
-        extra_kwargs = {'user': {'write_only': True}}
 
 
 class DogSerializer(serializers.ModelSerializer):
@@ -48,12 +47,14 @@ class DogSerializer(serializers.ModelSerializer):
         model = models.Dog
 
     def get_age(self, object):
+        """Returns a string describing dog's age from its date of birth in
+        the format 'X Year(s) Y Month(s)'. """
         age = ''
         date_of_birth = object.date_of_birth
         if date_of_birth:
             today = timezone.now().date()
             age_years = relativedelta(today, date_of_birth).years
-            age_months = (relativedelta(today, date_of_birth).months)
+            age_months = relativedelta(today, date_of_birth).months
 
             if age_years > 1:
                 age += str(age_years) + " Years "
@@ -66,7 +67,7 @@ class DogSerializer(serializers.ModelSerializer):
                 age += str(age_months) + " Month"
 
             if age_years == 0 and age_months == 0:
-                age = "Born today"
+                age = "Just born"
 
         return age
 
