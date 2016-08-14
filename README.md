@@ -2,7 +2,7 @@
 
 ## Requirements
 
-Create the models, serializers, and views to power the provided Angular
+Create the models, serializers, and views to power the provided JavaScript
 application. You can check through the supplied JavaScript to see what
 resources should be available or check below. You are allowed to change,
 extend, and improve the JavaScript if desired, but the final result must still
@@ -18,26 +18,23 @@ Create a virtualenv and install the project requirements, which are listed in
 `requirements.txt`. The easiest way to do this is with `pip install -r
 requirements.txt` while your virtualenv is activated.
 
-If you need to import dogs, a `data_import` script has been provided but it
-expects a `DogSerializer` and `Dog` model as outlined below to function
-properly.
-
 ## Models
 
-The following models and associated field names should be present as they 
-will be expected by the JavaScript application.
+The following models and associated field names are present as they 
+are expected by the JavaScript application.
 
 * `Dog` - This model represents a dog in the app.
 
 	Fields:
 
 	* `name`
-	* `image_filename`
+	* `image`
 	* `breed`
-	* `age`, integer for months
-	* `gender`, "m" for male, "f" for female, "u" for unknown
+	* `date_of_birth`
+	* `gender`, "m" for male, "f" for female
+	* `intact_or_neuter`, "i" for intact, "n" for neutered. As a devoted dog owner will always neuter his pet! 
 	* `size`, "s" for small, "m" for medium, "l" for large, "xl" for extra
-	  large, "u" for unknown
+	  large
 
 * `UserDog` -  This model represents a link between a user an a dog
 
@@ -61,13 +58,14 @@ will be expected by the JavaScript application.
 
 ## Serializers
 
-You'll need to provide serializers for both the `Dog` and `UserPref` models.
+Serializers for both the `Dog` and `UserPref` models are provied.
 Each of them should reveal all of the fields with one exception: the `UserPref`
-serializer doesn't need to reveal the user.
+serializer doesn't to reveal the user.
+The `Dog` serializer has an additional `age` field that holds an age string in the format "X Years Y Months".
 
 ## Routes
 
-The following routes are expected by the JavaScript application.
+The following routes are present and used by the JavaScript application.
 
 * To get the next liked/disliked/undecided dog
 
@@ -85,3 +83,14 @@ The following routes are expected by the JavaScript application.
 
 	* `/api/user/preferences/`
 
+* To add a new dog
+
+	* `/api/dog`
+
+* To delete a dog
+
+	* `/api/dog/<pk>/`
+
+* To get whether the current user is staff or not
+
+	* `/api/user/isstaff/`
