@@ -91,6 +91,6 @@ The following routes are present and used by the JavaScript application.
 
 	* `/api/dog/<pk>/`
 
-* To get whether the current user is staff or not
+* To get whether the current user is staff or not (only users who are staff can add and delete dogs)
 
 	* `/api/user/isstaff/`
