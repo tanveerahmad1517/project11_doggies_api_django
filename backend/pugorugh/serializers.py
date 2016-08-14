@@ -8,6 +8,27 @@ from rest_framework import serializers
 from . import models
 
 
+def date_of_birth_to_age(date_of_birth):
+    today = timezone.now().date()
+    age_years = relativedelta(today, date_of_birth).years
+    age_months = relativedelta(today, date_of_birth).months
+    age = ''
+
+    if age_years > 1:
+        age += str(age_years) + " Years "
+    elif age_years == 1:
+        age += str(age_years) + " Year "
+
+    if age_months > 1:
+        age += str(age_months) + " Months"
+    elif age_months == 1:
+        age += str(age_months) + " Month"
+
+    if age_years == 0 and age_months == 0:
+        age = "Just born"
+
+    return age.strip()
+
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
@@ -49,32 +70,14 @@ class DogSerializer(serializers.ModelSerializer):
     def get_age(self, object):
         """Returns a string describing dog's age from its date of birth in
         the format 'X Year(s) Y Month(s)'. """
-        age = ''
         date_of_birth = object.date_of_birth
         if date_of_birth:
-            today = timezone.now().date()
-            age_years = relativedelta(today, date_of_birth).years
-            age_months = relativedelta(today, date_of_birth).months
-
-            if age_years > 1:
-                age += str(age_years) + " Years "
-            elif age_years == 1:
-                age += str(age_years) + " Year "
-
-            if age_months > 1:
-                age += str(age_months) + " Months"
-            elif age_months == 1:
-                age += str(age_months) + " Month"
-
-            if age_years == 0 and age_months == 0:
-                age = "Just born"
-
-        return age
+            return date_of_birth_to_age(date_of_birth)
+        return ''
 
     def validate_date_of_birth(self, value):
         """Checks that date of birth is not in the future."""
         today = timezone.now().date()
-        print(value, today)
         if value > today:
             raise serializers.ValidationError(
                 'Date of birth cannot be in the future'
@@ -85,7 +88,6 @@ class DogSerializer(serializers.ModelSerializer):
 class UserPrefSerializer(serializers.ModelSerializer):
     class Meta:
         fields = (
-            'user',
             'age',
             'gender',
             'size',

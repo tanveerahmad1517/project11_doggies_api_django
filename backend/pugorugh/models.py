@@ -47,10 +47,13 @@ class UserDog(models.Model):
         ),
     )
 
+    class Meta:
+        unique_together = ('user', 'dog')
+
 
 class UserPref(models.Model):
     """User Preference model class."""
-    user = models.ForeignKey(User)
+    user = models.OneToOneField(User)
     age = models.CharField(
         max_length=7,
         default='b,y,a,s'

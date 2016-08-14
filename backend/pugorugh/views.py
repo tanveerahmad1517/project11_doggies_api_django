@@ -12,7 +12,6 @@ from django.utils import timezone
 from rest_framework import generics
 from rest_framework import permissions
 from rest_framework import status
-from rest_framework import parsers
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -67,11 +66,6 @@ class IsStaff(generics.RetrieveAPIView):
 class CreateDog(generics.CreateAPIView):
     """View to create a dog."""
     permission_classes = (permissions.IsAdminUser,)
-    # parser_classes = (
-        # parsers.MultiPartParser,
-        # parsers.FormParser,
-        # parsers.JSONParser,
-        # )
     queryset = models.Dog.objects.all()
     serializer_class = serializers.DogSerializer
 
@@ -127,8 +121,8 @@ class RetrieveFilteredDog(generics.RetrieveAPIView):
                 id__in=decided_dogs_ids
             ).filter(
                 age_query,
-                size__in=list(size),
-                gender__in=gender,
+                size__in=size.split(','),
+                gender__in=gender.split(','),
             ).order_by('id').values_list('id', flat=True)
 
         elif dog_filter == 'liked':
@@ -184,21 +178,29 @@ class UpdateDogStatus(APIView):
         pk = int(pk)
 
         dog = get_object_or_404(models.Dog, pk=pk)
+        userdog = models.UserDog.objects.filter(user=user, dog=dog)
 
         if dog_status == 'liked':
-            models.UserDog.objects.update_or_create(
-                user=user,
-                status='l',
-                dog=dog,
-            )
+            if userdog.exists():
+                userdog.update(status='l')
+            else:
+                models.UserDog.objects.create(
+                    user=user,
+                    status='l',
+                    dog=dog,
+                )
         elif dog_status == 'disliked':
-            models.UserDog.objects.update_or_create(
-                user=user,
-                status='d',
-                dog=dog,
-            )
+            if userdog.exists():
+                userdog.update(status='d')
+            else:
+                models.UserDog.objects.create(
+                    user=user,
+                    status='d',
+                    dog=dog,
+                )
         else:
-            models.UserDog.objects.filter(dog=dog, user=user).delete()
+            if userdog.exists():
+                userdog.delete()
 
         serializer = serializers.DogSerializer(dog)
 
