@@ -86,7 +86,7 @@ var PugOrUgh = React.createClass({
                     { className: this.state.viewName == "liked" ? "current-tab" : "" },
                     React.createElement(
                       "a",
-                      { onClick: this.setView.bind(this, "liked") },
+                      { onClick: this.setView.bind(this, TokenAuth.loggedIn() ? 'liked' : "login") },
                       "Liked"
                     )
                   ),
@@ -95,7 +95,7 @@ var PugOrUgh = React.createClass({
                     { className: this.state.viewName == "undecided" ? "current-tab" : "" },
                     React.createElement(
                       "a",
-                      { onClick: this.setView.bind(this, "undecided") },
+                      { onClick: this.setView.bind(this, TokenAuth.loggedIn() ? 'undecided' : "login") },
                       "Undecided"
                     )
                   ),
@@ -104,7 +104,7 @@ var PugOrUgh = React.createClass({
                     { className: this.state.viewName == "disliked" ? "current-tab" : "" },
                     React.createElement(
                       "a",
-                      { onClick: this.setView.bind(this, "disliked") },
+                      { onClick: this.setView.bind(this, TokenAuth.loggedIn() ? 'disliked' : "login") },
                       "Disliked"
                     )
                   )
