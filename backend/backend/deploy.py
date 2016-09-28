@@ -17,7 +17,7 @@ from whitenoise.django import DjangoWhiteNoise
 
 path = "home/vasilty/project_11_doggies_api_django/backend"
 if path not in sys.path:
-    sys.pasth.append(path)
+    sys.path.append(path)
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings")
 
