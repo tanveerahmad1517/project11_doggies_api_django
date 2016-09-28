@@ -4,3 +4,4 @@ djangorestframework==3.4.1
 Pillow==3.3.0
 python-dateutil==2.5.3
 six==1.10.0
+whitenoise==3.2.1

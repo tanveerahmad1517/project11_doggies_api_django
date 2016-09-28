@@ -29,6 +29,7 @@ def date_of_birth_to_age(date_of_birth):
 
     return age.strip()
 
+
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
