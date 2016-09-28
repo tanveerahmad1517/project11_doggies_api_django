@@ -151,11 +151,44 @@ var Dog = React.createClass({
         );
     }
   },
+  editElement: function() {
+    if(this.state.authorized) {
+      return React.createElement(
+        "a",
+        { onClick: this.handleAddDogClick },
+        React.createElement("img", {
+          src: "static/icons/plus.svg",
+          height: "45px"
+        })
+      );
+    } else {
+      return ''
+    }
+  },
+
+  deleteElement: function() {
+    if(this.state.authorized) {
+      return React.createElement(
+        "a",
+        {onClick: this.showConfirmation.bind(this)},
+        React.createElement("img", {
+          src: "static/icons/delete-trash.svg",
+          height: "45px"
+        })
+      );
+    } else {
+      return ''
+    }
+  },
+
   contents: function () {
     if (this.state.message !== undefined) {
       return React.createElement(
         "div",
         null,
+        React.createElement('p', { className: "text-centered dog-controls" },
+          this.editElement()
+        ),
         React.createElement(
           "p",
           { className: "text-centered" },
@@ -180,6 +213,9 @@ var Dog = React.createClass({
       return React.createElement(
         "div",
         null,
+        React.createElement('p', { className: "text-centered dog-controls" },
+          this.editElement()
+        ),
         React.createElement(
           "p",
           { className: "text-centered" },
@@ -196,33 +232,13 @@ var Dog = React.createClass({
         )
       );
     }
-    var editElement = '';
-    var deleteElement = '';
-    if(this.state.authorized) {
-      editElement = React.createElement(
-        "a",
-        { onClick: this.handleAddDogClick },
-        React.createElement("img", {
-          src: "static/icons/plus.svg",
-          height: "45px"
-        })
-      );
 
-      deleteElement = React.createElement(
-        "a",
-        {onClick: this.showConfirmation.bind(this)},
-        React.createElement("img", {
-          src: "static/icons/delete-trash.svg",
-          height: "45px"
-        })
-      );
-    }
       return React.createElement(
         "div",
         null,
         React.createElement('p', { className: "text-centered dog-controls" },
-          editElement,
-          deleteElement
+          this.editElement(),
+          this.deleteElement()
         ),
         React.createElement("img", {src: this.state.details.image}),
         React.createElement(
